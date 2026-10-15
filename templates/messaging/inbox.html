@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Xabarlar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>✉️ Kiruvchi xabarlar</h1>
+    <a href="{% url 'messaging:compose_general' %}" class="btn btn-primary">➕ Yangi xabar</a>
+</div>
+
+<div class="card">
+    {% if messages %}
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f1f5f9; text-align: left;">
+                <th style="padding: 12px 15px;">Yuboruvchi</th>
+                <th style="padding: 12px 15px;">Mavzu</th>
+                <th style="padding: 12px 15px;">Sana</th>
+                <th style="padding: 12px 15px; text-align: right;">Holat</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for msg in messages %}
+            <tr style="border-bottom: 1px solid #e2e8f0; {% if not msg.is_read %}background: #eff6ff; font-weight: bold;{% endif %}">
+                <td style="padding: 12px 15px;">{{ msg.sender.full_name|default:msg.sender.username }}</td>
+                <td style="padding: 12px 15px;">
+                    <a href="{% url 'messaging:detail' msg.pk %}" style="color: #1e293b; text-decoration: none;">{{ msg.subject }}</a>
+                </td>
+                <td style="padding: 12px 15px; color: #64748b; font-size: 13px;">{{ msg.timestamp|date:"d.m.Y H:i" }}</td>
+                <td style="padding: 12px 15px; text-align: right;">
+                    {% if not msg.is_read %}
+                        <span style="background: #3b82f6; color: white; padding: 3px 8px; border-radius: 10px; font-size: 11px;">Yangi</span>
+                    {% else %}
+                        <span style="color: #94a3b8; font-size: 12px;">O'qilgan</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #64748b; padding: 30px;">Sizda xabarlar yo'q.</p>
+    {% endif %}
+</div>
+{% endblock %}

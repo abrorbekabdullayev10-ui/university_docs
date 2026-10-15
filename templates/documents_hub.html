@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Hujjatlar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📄 Hujjatlar</h1>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    
+    {% if user.is_student %}
+    <!-- O'quvchi uchun: Javon -->
+    <a href="{% url 'documents:student_vault' %}" style="text-decoration: none;">
+        <div class="card" style="cursor: pointer; transition: 0.2s; border-top: 4px solid #3b82f6; min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 48px; margin-bottom: 15px;">🗄️</div>
+            <h3 style="color: #1e293b; margin-bottom: 10px;">Javon</h3>
+            <p style="color: #64748b; font-size: 14px;">
+                Mavjud hujjatlaringizni ko'ring, tahrirlang va o'qituvchiga ko'rinishini boshqaring
+            </p>
+            <div style="margin-top: 15px; color: #3b82f6; font-weight: 600;">
+                Kirish →
+            </div>
+        </div>
+    </a>
+    
+    <!-- O'quvchi uchun: Yangi hujjat -->
+    <a href="{% url 'documents:student_document_create' %}" style="text-decoration: none;">
+        <div class="card" style="cursor: pointer; transition: 0.2s; border-top: 4px solid #10b981; min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 48px; margin-bottom: 15px;">➕</div>
+            <h3 style="color: #1e293b; margin-bottom: 10px;">Yangi hujjat yaratish</h3>
+            <p style="color: #64748b; font-size: 14px;">
+                Shablon tanlang va yangi hujjat yarating
+            </p>
+            <div style="margin-top: 15px; color: #10b981; font-weight: 600;">
+                Yaratish →
+            </div>
+        </div>
+    </a>
+    {% else %}
+    <!-- O'qituvchi uchun: Yuborilgan hujjatlar -->
+    <a href="{% url 'documents:teacher_vault' %}" style="text-decoration: none;">
+        <div class="card" style="cursor: pointer; transition: 0.2s; border-top: 4px solid #10b981; min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+            <h3 style="color: #1e293b; margin-bottom: 10px;">Yuborilgan hujjatlar</h3>
+            <p style="color: #64748b; font-size: 14px;">
+                O'quvchilar tomonidan yuborilgan hujjatlarni ko'ring
+            </p>
+            <div style="margin-top: 15px; color: #10b981; font-weight: 600;">
+                Ko'rish →
+            </div>
+        </div>
+    </a>
+    
+    <!-- O'qituvchi uchun: Statistika -->
+    <a href="{% url 'documents:teacher_documents' %}" style="text-decoration: none;">
+        <div class="card" style="cursor: pointer; transition: 0.2s; border-top: 4px solid #f59e0b; min-height: 200px; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 48px; margin-bottom: 15px;">📊</div>
+            <h3 style="color: #1e293b; margin-bottom: 10px;">Statistika</h3>
+            <p style="color: #64748b; font-size: 14px;">
+                Hujjatlar bo'yicha umumiy statistikani ko'ring
+            </p>
+            <div style="margin-top: 15px; color: #f59e0b; font-weight: 600;">
+                Ko'rish →
+            </div>
+        </div>
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

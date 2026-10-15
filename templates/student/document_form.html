@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if document %}Hujjatni tahrirlash{% else %}Yangi hujjat{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{% if document %}️ Hujjatni tahrirlash{% else %}➕ Yangi hujjat yaratish{% endif %}</h1>
+    <a href="{% url 'documents:student_documents' %}" class="btn btn-secondary">← Ortga</a>
+</div>
+
+<div class="card" style="max-width: 800px;">
+    <h2 style="margin-bottom: 20px;">{% if document %}{{ document.template.title }}{% else %}Shablonni tanlang{% endif %}</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {% if not document %}
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Shablonni tanlang *</label>
+            <select name="template" id="template-select" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                <option value="">-- Shablonni tanlang --</option>
+                {% for template in templates %}
+                    <option value="{{ template.id }}">{{ template.title }} - {{ template.description }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Hujjat mazmuni</label>
+            <textarea name="content" id="content-area" rows="10" placeholder="Shablonni tanlagandan keyin matn avtomatik yuklanadi..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit;">{% if document %}{{ document.content }}{% endif %}</textarea>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Fayl yuklash (ixtiyoriy)</label>
+            <input type="file" name="file" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+            {% if document and document.file %}
+                <p style="margin-top: 10px;">Hozirgi fayl: <a href="{{ document.file.url }}" target="_blank">{{ document.file.name }}</a></p>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            {% if document %}
+                <button type="submit" name="action" value="draft" class="btn btn-secondary"> Javonga saqlash</button>
+                <button type="submit" name="action" value="submit" class="btn btn-success">📤 Yuborish</button>
+            {% else %}
+                <button type="submit" name="status" value="draft" class="btn btn-secondary">💾 Javonga saqlash</button>
+                <button type="submit" name="status" value="submitted" class="btn btn-success">📤 Yuborish</button>
+            {% endif %}
+            <a href="{% url 'documents:student_documents' %}" class="btn btn-danger">Bekor qilish</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var select = document.getElementById('template-select');
+    var textarea = document.getElementById('content-area');
+    
+    if (select && textarea) {
+        select.addEventListener('change', function() {
+            var templateId = this.value;
+            if (templateId) {
+                fetch('/documents/api/template/' + templateId + '/')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.content) {
+                            textarea.value = data.content;
+                        }
+                    });
+            } else {
+                textarea.value = '';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

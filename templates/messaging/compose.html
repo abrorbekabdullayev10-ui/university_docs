@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Yangi xabar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>✉️ Yangi xabar yozish</h1>
+</div>
+
+<div class="card" style="max-width: 700px;">
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="receiver_id" value="{{ receiver.id|default:'' }}">
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Kimga:</label>
+            {% if receiver %}
+                <input type="text" value="{{ receiver.full_name|default:receiver.username }} ({{ receiver.get_role_display }})" disabled style="width: 100%; padding: 10px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px;">
+            {% else %}
+                <p style="color: #64748b;">Qabul qiluvchi tanlanmagan.</p>
+            {% endif %}
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Mavzu:</label>
+            <input type="text" name="subject" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;" value="Savol yoki topshiriq">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Xabar matni:</label>
+            <textarea name="content" rows="8" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-family: inherit;"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primary">📤 Yuborish</button>
+            <a href="{% url 'messaging:inbox' %}" class="btn btn-secondary">Bekor qilish</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

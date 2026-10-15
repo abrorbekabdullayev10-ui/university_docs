@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Hujjatlar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📄 Yuborilgan hujjatlar</h1>
+</div>
+
+{% if vault_documents %}
+    {% regroup vault_documents by student.group.direction as direction_list %}
+    
+    {% for direction_group in direction_list %}
+    <div class="card" style="overflow: hidden;">
+        <div style="background: #3b82f6; color: white; padding: 15px 20px; font-weight: 600; font-size: 16px; display: flex; justify-content: space-between; align-items: center;">
+            <span>📚 {{ direction_group.grouper.name|default:"Guruhsiz" }} ({{ direction_group.grouper.code|default:"-" }})</span>
+            <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px; font-size: 14px;">{{ direction_group.list|length }} ta</span>
+        </div>
+        
+        {% regroup direction_group.list by student.group as group_list %}
+        
+        {% for group in group_list %}
+        <div style="padding: 15px 20px; border-bottom: 1px solid #e2e8f0;">
+            <h4 style="color: #1e293b; margin-bottom: 10px; font-size: 15px;">
+                👥 {{ group.grouper.name|default:"Guruhsiz" }} 
+                <span style="color: #10b981; font-size: 13px;">({{ group.list|length }} ta hujjat)</span>
+            </h4>
+            
+            {% for doc in group.list %}
+            <div style="background: #f8fafc; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #10b981; overflow: hidden;">
+                <!-- Asosiy qator - O'quvchi ismi (bosiladigan) -->
+                <div onclick="toggleDocInfo('doc-{{ doc.pk }}')" 
+                     style="padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;"
+                     onmouseover="this.style.background='#e2e8f0'"
+                     onmouseout="this.style.background='transparent'">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #1e293b; font-size: 15px;">
+                            👤 {{ doc.student.full_name|default:doc.student.username }}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <span style="background: #d1fae5; color: #10b981; padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: 600;">
+                            ✅ Yuborilgan
+                        </span>
+                        <a href="{% url 'documents:teacher_document_view' doc.pk %}" class="btn btn-primary" style="padding: 8px 15px; font-size: 13px;">
+                            Ko'rish
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Qo'shimcha ma'lumot (boshida yashirin) -->
+                <div id="doc-{{ doc.pk }}" style="display: none; padding: 15px 20px; background: #eff6ff; border-top: 1px solid #bfdbfe;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <div style="color: #64748b; font-size: 12px; margin-bottom: 3px;">📄 Hujjat turi</div>
+                            <div style="font-weight: 600; color: #1e293b;">{{ doc.template.title }}</div>
+                        </div>
+                        <div>
+                            <div style="color: #64748b; font-size: 12px; margin-bottom: 3px;"> Login</div>
+                            <div style="font-weight: 600; color: #1e293b;">{{ doc.student.username }}</div>
+                        </div>
+                        <div>
+                            <div style="color: #64748b; font-size: 12px; margin-bottom: 3px;">📅 Yuborilgan sana</div>
+                            <div style="font-weight: 600; color: #1e293b;">{{ doc.updated_at|date:"d.m.Y H:i" }}</div>
+                        </div>
+                        <div>
+                            <div style="color: #64748b; font-size: 12px; margin-bottom: 3px;">📧 Email</div>
+                            <div style="font-weight: 600; color: #1e293b;">{{ doc.student.email|default:"Ko'rsatilmagan" }}</div>
+                        </div>
+                    </div>
+                    
+                    {% if doc.content %}
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #bfdbfe;">
+                        <div style="color: #64748b; font-size: 12px; margin-bottom: 5px;">📝 Hujjat mazmuni (qisqa)</div>
+                        <div style="color: #475569; font-size: 13px; line-height: 1.5;">
+                            {{ doc.content|truncatechars:200 }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if doc.file %}
+                    <div style="margin-top: 10px;">
+                        <a href="{{ doc.file.url }}" target="_blank" style="color: #3b82f6; text-decoration: none; font-size: 13px;">
+                            📎 Faylni yuklab olish
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card" style="text-align: center; padding: 50px; color: #64748b;">
+        <div style="font-size: 64px; margin-bottom: 15px;">📭</div>
+        <p style="font-size: 18px; font-weight: 600;">Hozircha yuborilgan hujjatlar yo'q</p>
+        <p style="font-size: 14px; margin-top: 10px;">O'quvchilar hujjat yuborganida bu yerda ko'rinadi</p>
+    </div>
+{% endif %}
+
+<script>
+function toggleDocInfo(id) {
+    var element = document.getElementById(id);
+    if (element.style.display === 'none') {
+        element.style.display = 'block';
+    } else {
+        element.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

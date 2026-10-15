@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Hujjatni o'chirish{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🗑️ Hujjatni o'chirish</h1>
+</div>
+
+<div class="card" style="max-width: 500px; text-align: center;">
+    <h2 style="margin-bottom: 20px;">Hujjatni o'chirmoqchimisiz?</h2>
+    <p style="margin-bottom: 20px; font-size: 18px;"><strong>{{ document.template.title }}</strong></p>
+    <p style="color: #ef4444; margin-bottom: 30px;">️ Bu amalni qaytarib bo'lmaydi!</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button type="submit" class="btn btn-danger">Ha, o'chirish</button>
+            <a href="{% url 'documents:student_documents' %}" class="btn btn-secondary">Bekor qilish</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Hujjat tafsilotlari{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📄 Hujjat tafsilotlari</h1>
+    <a href="{% url 'documents:teacher_documents' %}" class="btn btn-secondary">← Ortga</a>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 20px;">{{ document.template.title }}</h2>
+    
+    <div style="background: #f8fafc; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+        <p style="margin: 8px 0;"><strong> O'quvchi:</strong> {{ document.student.full_name|default:document.student.username }}</p>
+        <p style="margin: 8px 0;"><strong>🔑 Login:</strong> {{ document.student.username }}</p>
+        <p style="margin: 8px 0;"><strong> Email:</strong> {{ document.student.email }}</p>
+        {% if document.student.group %}
+        <p style="margin: 8px 0;"><strong>👥 Guruh:</strong> {{ document.student.group.name }} — {{ document.student.group.direction.name }}</p>
+        <p style="margin: 8px 0;"><strong>📅 O'qish yili:</strong> {{ document.student.group.year }}</p>
+        {% endif %}
+        <p style="margin: 8px 0;"><strong>📅 Yuborilgan sana:</strong> {{ document.updated_at|date:"d.m.Y H:i" }}</p>
+        <p style="margin: 8px 0;"><strong>📊 Holat:</strong> <span style="color: #10b981; font-weight: bold;">✅ Yuborilgan</span></p>
+    </div>
+
+    <h3 style="margin-bottom: 15px;"> Hujjat mazmuni:</h3>
+    <div style="background: #f8fafc; padding: 20px; border-radius: 6px; border-left: 4px solid #3b82f6; white-space: pre-wrap; font-family: monospace; line-height: 1.6;">
+        {{ document.content|default:"Mazmun kiritilmagan" }}
+    </div>
+
+    {% if document.file %}
+    <div style="margin-top: 20px;">
+        <h3 style="margin-bottom: 10px;">📎 Yuklangan fayl:</h3>
+        <a href="{{ document.file.url }}" target="_blank" class="btn btn-success">Faylni yuklab olish</a>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 20px;">
+        <a href="{% url 'messaging:compose' document.student.id %}" class="btn btn-primary">✉️ O'quvchiga xabar yuborish</a>
+    </div>
+</div>
+{% endblock %}

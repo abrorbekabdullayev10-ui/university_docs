@@ -1,0 +1,33 @@
+notepad templates\student\dashboard.html{% extends 'base.html' %}
+
+{% block title %}O'quvchi kabineti{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🎓 O'quvchi kabineti</h1>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 20px;">Xush kelibsiz, {{ user.full_name|default:user.username }}!</h2>
+    
+    <div style="background: #f8fafc; padding: 20px; border-radius: 6px; border-left: 4px solid #10b981; margin-bottom: 20px;">
+        <p style="margin: 8px 0;"><strong> Login:</strong> {{ user.username }}</p>
+        <p style="margin: 8px 0;"><strong>👤 Ism Familiya:</strong> {{ user.full_name }}</p>
+        <p style="margin: 8px 0;"><strong>📧 Email:</strong> {{ user.email }}</p>
+        <p style="margin: 8px 0;"><strong>👥 Guruh:</strong> {{ user.group.name|default:"Guruhga biriktirilmagansiz" }}</p>
+        <p style="margin: 8px 0;"><strong>📚 Yo'nalish:</strong> {{ user.group.direction.name|default:"Aniqlanmagan" }}</p>
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 15px;">Tezkor havolalar</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        <a href="{% url 'documents:student_documents' %}" class="btn btn-primary" style="text-align: center; padding: 20px;">
+            📄 Hujjatlarim
+        </a>
+        <a href="{% url 'messaging:inbox' %}" class="btn btn-success" style="text-align: center; padding: 20px;">
+            ✉️ Xabarlarim
+        </a>
+    </div>
+</div>
+{% endblock %}

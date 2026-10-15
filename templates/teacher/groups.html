@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Guruhlar va o'quvchilar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>👥 Guruhlar va o'quvchilar ro'yxati</h1>
+</div>
+
+{% for direction in directions %}
+<div class="card" style="overflow: hidden; margin-bottom: 20px;">
+    <!-- Yo'nalish (bosiladigan) -->
+    <div onclick="toggleDirection('dir-{{ direction.id }}')" 
+         style="background: #3b82f6; color: white; padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+         onmouseover="this.style.background='#2563eb'"
+         onmouseout="this.style.background='#3b82f6'">
+        <span style="font-weight: 600; font-size: 16px;">📚 {{ direction.name }} ({{ direction.code }})</span>
+        <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px;">{{ direction.groups.count }} guruh ▼</span>
+    </div>
+    
+    <!-- Guruhlar (yashirin) -->
+    <div id="dir-{{ direction.id }}" style="display: none;">
+        {% for group in direction.groups.all %}
+        <div style="padding: 10px 20px;">
+            <!-- Guruh (bosiladigan) -->
+            <div onclick="toggleGroup('grp-{{ group.id }}')" 
+                 style="background: #ecf0f1; padding: 12px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 6px; margin-bottom: 10px;"
+                 onmouseover="this.style.background='#e2e8f0'"
+                 onmouseout="this.style.background='#ecf0f1'">
+                <span style="font-weight: 600; color: #1e293b;"> {{ group.name }} ({{ group.year }}-yil)</span>
+                <span style="color: #10b981;">{{ group.customuser_set.count }} o'quvchi ▼</span>
+            </div>
+            
+            <!-- O'quvchilar (yashirin) -->
+            <div id="grp-{{ group.id }}" style="display: none; padding-left: 20px;">
+                {% with students=group.customuser_set.all %}
+                    {% if students %}
+                    <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 6px; overflow: hidden;">
+                        <thead>
+                            <tr style="background: #f1f5f9; text-align: left;">
+                                <th style="padding: 12px 15px;">F.I.Sh</th>
+                                <th style="padding: 12px 15px;">Login</th>
+                                <th style="padding: 12px 15px;">Email</th>
+                                <th style="padding: 12px 15px; text-align: right;">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 12px 15px;">{{ student.full_name|default:student.username }}</td>
+                                <td style="padding: 12px 15px; color: #64748b;">{{ student.username }}</td>
+                                <td style="padding: 12px 15px; color: #64748b;">{{ student.email }}</td>
+                                <td style="padding: 12px 15px; text-align: right;">
+                                    <a href="{% url 'messaging:chat' student.id %}" class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;">✉️ Xabar</a>
+                                    <a href="{% url 'documents:student_vault_by_teacher' student.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;">️ Javon</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p style="color: #64748b; font-style: italic; padding: 10px;">Bu guruhda hali o'quvchilar yo'q.</p>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% empty %}
+<div class="card">
+    <p>Hozircha yo'nalishlar mavjud emas.</p>
+</div>
+{% endfor %}
+
+<script>
+function toggleDirection(id) {
+    var el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function toggleGroup(id) {
+    var el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Xabarlar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>✉️ Xabarlar</h1>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+    {% if chats %}
+        {% for chat in chats %}
+        <a href="{% url 'messaging:chat' chat.user.id %}" style="display: flex; align-items: center; padding: 15px 20px; text-decoration: none; color: inherit; border-bottom: 1px solid #e2e8f0; transition: 0.2s;">
+            <div style="width: 50px; height: 50px; background: {% if chat.user.is_teacher %}#3b82f6{% else %}#10b981{% endif %}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; margin-right: 15px;">
+                {{ chat.user.full_name|default:chat.user.username|slice:":1"|upper }}
+            </div>
+            <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 15px; margin-bottom: 3px;">
+                    {{ chat.user.full_name|default:chat.user.username }}
+                    <span style="font-size: 11px; color: #94a3b8; font-weight: normal; margin-left: 8px;">
+                        {{ chat.user.get_role_display }}
+                    </span>
+                </div>
+                {% if chat.last_message %}
+                <div style="color: #64748b; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px;">
+                    {{ chat.last_message.content|truncatechars:50 }}
+                </div>
+                {% endif %}
+            </div>
+            <div style="text-align: right; min-width: 80px;">
+                {% if chat.last_message %}
+                <div style="font-size: 11px; color: #94a3b8;">
+                    {{ chat.last_message.timestamp|date:"H:i" }}
+                </div>
+                {% endif %}
+                {% if chat.unread_count > 0 %}
+                <div style="background: #3b82f6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; margin-top: 5px; display: inline-block;">
+                    {{ chat.unread_count }}
+                </div>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    {% else %}
+        <div style="padding: 50px; text-align: center; color: #64748b;">
+            <div style="font-size: 48px; margin-bottom: 15px;">💬</div>
+            <p style="font-size: 16px;">Sizda hali suhbatlar yo'q</p>
+            <p style="font-size: 13px; margin-top: 10px;">O'qituvchi/O'quvchilarga xabar yuborish uchun guruhlar bo'limidan foydalaning</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

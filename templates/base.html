@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Universitet documents{% endblock %}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; display: flex; min-height: 100vh; background: #f0f2f5; }
+        
+        .sidebar { width: 260px; background: #1e293b; color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid #334155; }
+        .sidebar-header h2 { font-size: 18px; font-weight: 600; }
+        .sidebar-header p { font-size: 13px; color: #94a3b8; margin-top: 5px; }
+        
+        .sidebar-menu { flex: 1; padding: 20px 0; overflow-y: auto; }
+        .sidebar-menu a { display: flex; align-items: center; padding: 12px 20px; color: #cbd5e1; text-decoration: none; transition: 0.2s; font-size: 15px; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background: #334155; color: white; border-left: 4px solid #3b82f6; }
+        .sidebar-menu a span { margin-left: 12px; }
+        
+        .sidebar-footer { padding: 20px; border-top: 1px solid #334155; }
+        .logout-btn { width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; }
+        .page-header { margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .page-header h1 { font-size: 24px; color: #1e293b; }
+        
+        .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 25px; margin-bottom: 20px; }
+        
+        .btn { padding: 10px 20px; border-radius: 6px; text-decoration: none; display: inline-block; font-weight: 600; cursor: pointer; border: none; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-secondary { background: #e2e8f0; color: #475569; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Universitet documents</h2>
+            <p>{{ user.full_name|default:user.username }}</p>
+            <p style="font-size: 11px; margin-top: 3px;">{{ user.get_role_display }}</p>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <span>🏠 Bosh sahifa</span>
+            </a>
+            
+            {% if user.is_teacher %}
+            <a href="{% url 'documents:documents_hub' %}" class="{% if request.resolver_match.url_name == 'documents_hub' or 'teacher_vault' in request.resolver_match.url_name or 'teacher_documents' in request.resolver_match.url_name %}active{% endif %}">
+                <span>📄 Hujjatlar</span>
+            </a>
+            <a href="{% url 'teacher_groups' %}" class="{% if 'teacher_groups' in request.resolver_match.url_name %}active{% endif %}">
+                <span>👥 Guruhlar va o'quvchilar</span>
+            </a>
+            {% else %}
+            <a href="{% url 'documents:documents_hub' %}" class="{% if request.resolver_match.url_name == 'documents_hub' or 'student_vault' in request.resolver_match.url_name or 'student_documents' in request.resolver_match.url_name %}active{% endif %}">
+                <span>📄 Hujjatlar</span>
+            </a>
+            {% endif %}
+            
+            <a href="{% url 'messaging:chat_list' %}" class="{% if 'messaging' in request.resolver_match.url_name %}active{% endif %}">
+                <span>✉️ Xabarlar</span>
+            </a>
+        </div>
+        <div class="sidebar-footer">
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">🚪 Tizimdan chiqish</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

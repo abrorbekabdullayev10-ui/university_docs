@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Statistika{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📊 Statistika</h1>
+</div>
+
+<!-- Filter panel -->
+<div class="card">
+    <h3 style="margin-bottom: 15px;">🔍 Filtrlash</h3>
+    <form method="get" style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Yo'nalish:</label>
+            <select name="direction" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                <option value="">Barcha yo'nalishlar</option>
+                {% for direction in directions %}
+                    <option value="{{ direction.id }}" {% if selected_direction == direction.id|stringformat:"d" %}selected{% endif %}>
+                        {{ direction.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Guruh:</label>
+            <select name="group" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                <option value="">Barcha guruhlar</option>
+                {% for group in groups %}
+                    <option value="{{ group.id }}" {% if selected_group == group.id|stringformat:"d" %}selected{% endif %}>
+                        {{ group.name }} - {{ group.direction.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <button type="submit" class="btn btn-primary">Filtrlash</button>
+            <a href="{% url 'documents:teacher_documents' %}" class="btn btn-secondary">Tozalash</a>
+        </div>
+    </form>
+</div>
+
+<div class="card" style="background: #f1f5f9;">
+    <strong style="font-size: 18px;">📊 Jami: {{ total_count }} ta hujjat</strong>
+</div>
+
+{% if documents %}
+    {% regroup documents by student.group.direction as direction_list %}
+    
+    {% for direction_group in direction_list %}
+    <div class="card" style="overflow: hidden;">
+        <!-- Yo'nalish (bosiladigan) -->
+        <div onclick="toggleDirection('dir-{{ direction_group.grouper.id }}')" 
+             style="background: #3b82f6; color: white; padding: 15px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+             onmouseover="this.style.background='#2563eb'"
+             onmouseout="this.style.background='#3b82f6'">
+            <span style="font-weight: 600;">📚 {{ direction_group.grouper.name|default:"Guruhsiz" }} ({{ direction_group.grouper.code|default:"-" }})</span>
+            <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px;">{{ direction_group.list|length }} ta ▼</span>
+        </div>
+        
+        <!-- Guruhlar (yashirin) -->
+        <div id="dir-{{ direction_group.grouper.id }}" style="display: none;">
+            {% regroup direction_group.list by student.group as group_list %}
+            
+            {% for group in group_list %}
+            <div style="padding: 10px 20px;">
+                <!-- Guruh (bosiladigan) -->
+                <div onclick="toggleGroup('grp-{{ group.grouper.id }}')" 
+                     style="background: #ecf0f1; padding: 12px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 6px; margin-bottom: 10px;"
+                     onmouseover="this.style.background='#e2e8f0'"
+                     onmouseout="this.style.background='#ecf0f1'">
+                    <span style="font-weight: 600; color: #1e293b;">👥 {{ group.grouper.name|default:"Guruhsiz" }}</span>
+                    <span style="color: #10b981; font-size: 13px;">{{ group.list|length }} ta ▼</span>
+                </div>
+                
+                <!-- O'quvchilar (yashirin) -->
+                <div id="grp-{{ group.grouper.id }}" style="display: none; padding-left: 20px;">
+                    {% for doc in group.list %}
+                    <div style="background: #f8fafc; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid #10b981; overflow: hidden;">
+                        <!-- O'quvchi ismi (bosiladigan) -->
+                        <div onclick="toggleDocInfo('doc-{{ doc.pk }}')" 
+                             style="padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;"
+                             onmouseover="this.style.background='#e2e8f0'"
+                             onmouseout="this.style.background='transparent'">
+                            <div style="font-weight: 600; color: #1e293b;">
+                                👤 {{ doc.student.full_name|default:doc.student.username }}
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                {% if doc.teacher_score %}
+                                    <span style="background: #fbbf24; color: #92400e; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                                        ⭐ {{ doc.teacher_score }} ball
+                                    </span>
+                                {% endif %}
+                                
+{% if doc.status == 'submitted' %}
+    <span style="background: #d1fae5; color: #10b981; padding: 4px 10px; border-radius: 12px; font-size: 12px;">✅ Yuborilgan</span>
+{% else %}
+    <span style="background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 12px; font-size: 12px;"> Javondan (ruhsat berilgan)</span>
+{% endif %}
+                                <a href="{% url 'documents:teacher_document_view' doc.pk %}" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">Ko'rish</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Qo'shimcha ma'lumot -->
+                        <div id="doc-{{ doc.pk }}" style="display: none; padding: 15px 20px; background: #eff6ff; border-top: 1px solid #bfdbfe;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div>
+                                    <div style="color: #64748b; font-size: 12px;">📄 Hujjat turi</div>
+                                    <div style="font-weight: 600;">{{ doc.template.title }}</div>
+                                </div>
+                                <div>
+                                    <div style="color: #64748b; font-size: 12px;">🔑 Login</div>
+                                    <div style="font-weight: 600;">{{ doc.student.username }}</div>
+                                </div>
+                                <div>
+                                    <div style="color: #64748b; font-size: 12px;">📅 Sana</div>
+                                    <div style="font-weight: 600;">{{ doc.updated_at|date:"d.m.Y H:i" }}</div>
+                                </div>
+                                <div>
+                                    <div style="color: #64748b; font-size: 12px;">📧 Email</div>
+                                    <div style="font-weight: 600;">{{ doc.student.email|default:"—" }}</div>
+                                </div>
+                            </div>
+                            
+                            {% if doc.content %}
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #bfdbfe;">
+                                <div style="color: #64748b; font-size: 12px; margin-bottom: 5px;">📝 Mazmuni</div>
+                                <div style="color: #475569; font-size: 13px; line-height: 1.5;">{{ doc.content|truncatechars:200 }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- O'qituvchi baho qo'yish formasi -->
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #bfdbfe;">
+                                <h4 style="margin-bottom: 10px; font-size: 14px;">⭐ Baho berish</h4>
+                                <form method="post" action="{% url 'documents:teacher_score' doc.pk %}" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                    {% csrf_token %}
+                                    <input type="number" name="score" min="0" max="100" value="{{ doc.teacher_score|default:'' }}" placeholder="0-100" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100px;">
+                                    <input type="text" name="comment" value="{{ doc.teacher_comment }}" placeholder="Izoh..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; min-width: 200px;">
+                                    <button type="submit" class="btn btn-primary" style="padding: 8px 15px; font-size: 13px;">Saqlash</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card" style="text-align: center; padding: 50px; color: #64748b;">
+        <div style="font-size: 64px; margin-bottom: 15px;">📭</div>
+        <p style="font-size: 18px; font-weight: 600;">Hozircha hujjatlar yo'q</p>
+    </div>
+{% endif %}
+
+<script>
+function toggleDirection(id) {
+    var el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function toggleGroup(id) {
+    var el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+function toggleDocInfo(id) {
+    var el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

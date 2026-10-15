@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ student.full_name }} - Javon{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🗄️ {{ student.full_name|default:student.username }} - Javon</h1>
+    <a href="{% url 'teacher_groups' %}" class="btn btn-secondary">← Ortga</a>
+</div>
+
+<div class="card">
+    <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+        <p style="margin: 0; color: #1e40af;">
+            <strong>👤 O'quvchi:</strong> {{ student.full_name }} ({{ student.username }})<br>
+            <strong>👥 Guruh:</strong> {{ student.group.name }} - {{ student.group.direction.name }}
+        </p>
+    </div>
+    
+    {% if vault_documents %}
+        {% for doc in vault_documents %}
+        <div style="background: #f8fafc; padding: 20px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #f59e0b;">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div style="flex: 1;">
+                    <h4 style="margin: 0 0 8px 0;">{{ doc.template.title }}</h4>
+                    <p style="margin: 0 0 5px 0; color: #64748b; font-size: 14px;">{{ doc.content|truncatechars:150 }}</p>
+                    <small style="color: #94a3b8;"> {{ doc.updated_at|date:"d.m.Y H:i" }}</small>
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <a href="{% url 'documents:teacher_document_view' doc.pk %}" class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;">To'liq ko'rish</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div style="text-align: center; padding: 40px; color: #64748b;">
+            <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
+            <p style="font-size: 16px;">O'quvchi javonidagi hujjatlarni ko'rishga ruxsat bermagan</p>
+            <p style="font-size: 13px; margin-top: 10px;">Yoki javon bo'sh</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
